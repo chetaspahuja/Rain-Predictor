@@ -172,5 +172,5 @@ train_input[encoded_cols] = encoder.transform(train_input[catogorical_cols].fill
 val_input[encoded_cols] = encoder.transform(val_input[catogorical_cols].fillna('Unknown'))
 test_input[encoded_cols] = encoder.transform(test_input[catogorical_cols].fillna('Unknown'))
 
-
+test_input[encoded_cols]
 
