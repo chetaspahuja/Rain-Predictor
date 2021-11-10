@@ -196,3 +196,35 @@ pd.DataFrame(val_target).to_parquet('val_target.parquet')
 pd.DataFrame(test_target).to_parquet('test_target.parquet')
 
 
+from sklearn.linear_model import LogisticRegression 
+
+model = LogisticRegression(solver = 'liblinear')
+model.fit(train_input[numeric_cols + encoded_cols] , train_target)
+
+print(model.coef_.tolist())
+
+weight_df = pd.DataFrame({'feature' : (numeric_cols + encoded_cols) , 'weights' : model.coef_.tolist()[0]})
+
+print('Intercept of the Model :' , model.intercept_)
+
+# plt.figure(figsize = (50 , 70)) 
+sns.barplot(data = weight_df , x = 'weights' , y = 'feature')
+sns.barplot(data = weight_df.sort_values('weights' , ascending = False).head(10) ,x = 'weights' , y = 'feature')
+
+
+x_train = train_input[numeric_cols + encoded_cols]
+x_val = val_input[numeric_cols + encoded_cols]
+x_test = test_input[numeric_cols + encoded_cols]
+
+train_preds = model.predict(x_train)
+
+# predict_proba in logisitic regression gives out probabiltites of raining tmrw 
+train_probability = model.predict_proba(x_train) 
+# train_probability
+
+from sklearn.metrics import accuracy_score
+# gives out accuracy of the model
+accuracy_score(train_target , train_preds)
+
+
+
