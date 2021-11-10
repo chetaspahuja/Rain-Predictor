@@ -5,6 +5,7 @@ Created on Tue Sep 21 20:17:41 2021
 @author: ASUS
 """
 # Logistic regression
+import numpy as np
 import pandas as pd
 import opendatasets as od 
 # print(od.version())
@@ -12,7 +13,7 @@ import opendatasets as od
 dataset_url = "https://www.kaggle.com/jsphyg/weather-dataset-rattle-package" 
 od.download(dataset_url) 
 
-weather_df = pd.read_csv("C:\GIT\Datasets\weatherAUS.csv")
+weather_df = pd.read_csv("C:/ML/Taking-a-Rain-Check/weatherAUS.csv")
 # print(weather_df.shape)
 # print(weather_df.info())
 # print(weather_df.describe()) 
@@ -76,6 +77,9 @@ test_df = weather_df[year > 2015]
 # test_df
 
 # IDENTIFYING INPUT AND TARGET COLUMNS 
+train_df.info()
+
+# 0th column is the date and the last column of train_df is actually is target column, hence we dont include them while working as it can lead to 100% accuracy 
 
 input_cols = list(train_df.columns)[1:-1] 
 target_cols = 'RainTomorrow' 
@@ -93,7 +97,47 @@ test_target = train_df[target_cols].copy()
 
 # type(val_input)
 
+# separating numerical and catergorical data 
 numeric_cols = train_input.select_dtypes(include = np.number).columns.tolist()
 catogorical_cols = train_input.select_dtypes('object').columns.tolist() 
 
+from sklearn.impute import SimpleImputer 
 
+# creating an imputer object 
+imputer = SimpleImputer(strategy = 'mean') 
+
+weather_df[numeric_cols].isna().sum()
+
+# calculates the mean(in this case) of the colums we require to fill missing values in
+imputer.fit(weather_df[numeric_cols])
+print(numeric_cols)
+
+# the mean of every column in the numeric_cols
+list(imputer.statistics_) 
+
+imputer.transform(train_input[numeric_cols]) 
+
+val_input[numeric_cols]
+
+train_input[numeric_cols] = imputer.transform(train_input[numeric_cols]) 
+val_input[numeric_cols] = imputer.transform(val_input[numeric_cols])
+test_input[numeric_cols] = imputer.transform(test_input[numeric_cols])
+
+# train_input[numeric_cols]
+
+train_input[numeric_cols].isna().sum()
+val_input[numeric_cols].isna().sum()
+test_input[numeric_cols].isna().sum()
+
+# Scaling the data to give equal dominance/effect in the final result
+# Usually columns having large range of values effects the result more
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler() 
+
+scaler.fit(weather_df[numeric_cols])
+
+print('minimum')
+list(scaler.data_min_)
+
+print('maximum')
+list(scaler.data_max_)
