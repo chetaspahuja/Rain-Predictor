@@ -101,6 +101,8 @@ test_target = train_df[target_cols].copy()
 numeric_cols = train_input.select_dtypes(include = np.number).columns.tolist()
 catogorical_cols = train_input.select_dtypes('object').columns.tolist() 
 
+# ---------------------------------------------------------------------------------
+# cleaning numerical data (filling missing values and scaling the numbers)
 from sklearn.impute import SimpleImputer 
 
 # creating an imputer object 
@@ -131,6 +133,7 @@ test_input[numeric_cols].isna().sum()
 
 # Scaling the data to give equal dominance/effect in the final result
 # Usually columns having large range of values effects the result more
+# brings the data in the range of 0 to 1 
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler() 
 
@@ -141,3 +144,33 @@ list(scaler.data_min_)
 
 print('maximum')
 list(scaler.data_max_)
+
+train_input[numeric_cols] = scaler.transform(train_input[numeric_cols])
+val_input[numeric_cols] = scaler.transform(val_input[numeric_cols])
+test_input[numeric_cols] = scaler.transform(test_input[numeric_cols])
+
+# train_input.describe()
+
+# --------------------------------------------------------------
+# encoding catogorical data for numerical computation 
+
+weather_df[catogorical_cols].nunique()
+
+from sklearn.preprocessing import OneHotEncoder 
+# ?OneHotEncoder
+
+weather_df2 = weather_df[catogorical_cols].fillna('Unknown') 
+encoder = OneHotEncoder(sparse = False , handle_unknown= 'ignore')
+
+encoder.fit(weather_df2[catogorical_cols]) 
+
+encoder.categories_
+encoded_cols = list(encoder.get_feature_names(catogorical_cols))
+print(encoded_cols)
+
+train_input[encoded_cols] = encoder.transform(train_input[catogorical_cols].fillna('Unknown'))
+val_input[encoded_cols] = encoder.transform(val_input[catogorical_cols].fillna('Unknown'))
+test_input[encoded_cols] = encoder.transform(test_input[catogorical_cols].fillna('Unknown'))
+
+
+
