@@ -226,5 +226,99 @@ from sklearn.metrics import accuracy_score
 # gives out accuracy of the model
 accuracy_score(train_target , train_preds)
 
+from sklearn.metrics import confusion_matrix 
+confusion_matrix(train_target , train_preds , normalize = 'true')
+
+def predictPlot(inputs , targets , name = ''):
+    preds = model.predict(inputs)
+    accuracy = accuracy_score(targets , preds)
+    print("Accuracy : {:.2f}%".format(accuracy * 100))
+    
+    cf = confusion_matrix(targets, preds, normalize = 'true')
+    plt.figure() 
+    sns.heatmap(cf , annot = True)
+    plt.xlabel('Prediction')
+    plt.ylabel('Target')
+    plt.title('{} Confusion Matrix'.format(name))
+    return preds 
+
+val_preds = predictPlot(x_val , val_target , 'Validation')
+train_preds = predictPlot(x_train, train_target, 'Training')
+
+# -------------------------------------------------------------------
+# testing the model on a random input 
+
+new_input = {'Date': '2021-06-19',
+             'Location': 'Katherine',
+             'MinTemp': 23.2,
+             'MaxTemp': 33.2,
+             'Rainfall': 10.2,
+             'Evaporation': 4.2,
+             'Sunshine': np.nan,
+             'WindGustDir': 'NNW',
+             'WindGustSpeed': 52.0,
+             'WindDir9am': 'NW',
+             'WindDir3pm': 'NNE',
+             'WindSpeed9am': 13.0,
+             'WindSpeed3pm': 20.0,
+             'Humidity9am': 89.0,
+             'Humidity3pm': 58.0,
+             'Pressure9am': 1004.8,
+             'Pressure3pm': 1001.5,
+             'Cloud9am': 8.0,
+             'Cloud3pm': 5.0,
+             'Temp9am': 25.7,
+             'Temp3pm': 33.0,
+             'RainToday': 'Yes'}
+
+newInput_df = pd.DataFrame([new_input])
+
+newInput_df[numeric_cols] = imputer.transform(newInput_df[numeric_cols])
+newInput_df[numeric_cols] = scaler.transform(newInput_df[numeric_cols])
+newInput_df[encoded_cols] = encoder.transform(newInput_df[catogorical_cols])
+
+xNewInput = newInput_df[numeric_cols+encoded_cols] 
+type(xNewInput)
+
+predicition = model.predict(xNewInput_df)[0]
+print('Prediction for Input :' , predicition)
+
+# Creating a function for model to work for a single new input value 
+
+def predictForAnInput(singleInput):
+    input_df = pd.DataFrame([singleInput]) 
+    input_df[numeric_cols] = imputer.transform(input_df[numeric_cols]) 
+    input_df[numeric_cols] = scaler.transform(input_df[numeric_cols]) 
+    input_df[encoded_cols] = encoder.transform(input_df[catogorical_cols]) 
+    xInput = input_df[numeric_cols + encoded_cols]
+    pred = model.predict(xInput)[0] 
+    prob = model.predict_proba(xInput)[0][list(model.classes_).index(pred)]
+    return pred , prob
+
+new_input = {'Date': '2021-06-19',
+             'Location': 'Launceston',
+             'MinTemp': 23.2,
+             'MaxTemp': 33.2,
+             'Rainfall': 10.2,
+             'Evaporation': 4.2,
+             'Sunshine': np.nan,
+             'WindGustDir': 'NNW',
+             'WindGustSpeed': 52.0,
+             'WindDir9am': 'NW',
+             'WindDir3pm': 'NNE',
+             'WindSpeed9am': 13.0,
+             'WindSpeed3pm': 20.0,
+             'Humidity9am': 89.0,
+             'Humidity3pm': 58.0,
+             'Pressure9am': 1004.8,
+             'Pressure3pm': 1001.5,
+             'Cloud9am': 8.0,
+             'Cloud3pm': 5.0,
+             'Temp9am': 25.7,
+             'Temp3pm': 33.0,
+             'RainToday': 'Yes'}
+
+predictForAnInput(new_input)
 
 
+    
