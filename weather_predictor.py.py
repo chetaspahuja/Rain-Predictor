@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Sep 21 20:17:41 2021
-
-@author: ASUS
-"""
 # Logistic regression
+import joblib
 from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
-import sklearn
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -332,3 +326,19 @@ new_input = {'Date': '2021-06-19',
              'RainToday': 'Yes'}
 
 predictForAnInput(new_input)
+
+# Saving model , all the proccess and parameters(weights and )
+
+
+weather_predictor = {
+    'model': model,
+    'imputer': imputer,
+    'scaler': scaler,
+    'input_cols': input_cols,
+    'target_cols': target_cols,
+    'numeric_cols': numeric_cols,
+    'categorical_cols': catogorical_cols,
+    'encoded_cols': encoded_cols
+}
+
+joblib.dump(weather_predictor, 'weatherPredictor.joblib')
